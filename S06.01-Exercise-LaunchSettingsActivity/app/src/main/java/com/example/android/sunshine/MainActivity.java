@@ -44,15 +44,11 @@ public class MainActivity extends AppCompatActivity implements
         LoaderCallbacks<String[]> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private static final int FORECAST_LOADER_ID = 0;
     private RecyclerView mRecyclerView;
     private ForecastAdapter mForecastAdapter;
-
     private TextView mErrorMessageDisplay;
-
     private ProgressBar mLoadingIndicator;
-
-    private static final int FORECAST_LOADER_ID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -346,11 +342,12 @@ public class MainActivity extends AppCompatActivity implements
             return true;
         }
 
-        // TODO (1) Add new Activity called SettingsActivity using Android Studio wizard
-        // Do step 2 in SettingsActivity
-        // TODO (2) Set setDisplayHomeAsUpEnabled to true on the support ActionBar
-
-        // TODO (6) Launch SettingsActivity when the Settings option is clicked
+        // COMPLETED (6) Launch SettingsActivity when the Settings option is clicked
+        if (id == R.id.settings) {
+            Intent settingsAreGo = new Intent(this, SettingsActivity.class);
+            startActivity(settingsAreGo);
+            return true;
+        }
 
         return super.onOptionsItemSelected(item);
     }

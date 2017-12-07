@@ -42,19 +42,21 @@ import static com.example.android.sunshine.data.WeatherProvider.buildUriMatcher;
  */
 public class WeatherProvider extends ContentProvider {
 
-//  TODO (5) Create static constant integer values named CODE_WEATHER & CODE_WEATHER_WITH_DATE to identify the URIs this ContentProvider can handle
-public static final int CODE_WEATHER = 100;
+    // TODO (5) Create static constant integer values named CODE_WEATHER & CODE_WEATHER_WITH_DATE
+    // to identify the URIs this ContentProvider can handle
+    public static final int CODE_WEATHER = 100;
     public static final int CODE_WEATHER_WITH_DATE = 101;
 
-//  TODO (7) Instantiate a static UriMatcher using the buildUriMatcher method
-private static final UriMatcher sUriMatcher = buildUriMatcher();
+    // TODO (7) Instantiate a static UriMatcher using the buildUriMatcher method
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
 
     private WeatherDbHelper mOpenHelper;
 
-//  TODO (6) Write a method called buildUriMatcher where you match URI's to their numeric ID
-public static UriMatcher buildUriMatcher() {
+    // TODO (6) Write a method called buildUriMatcher where you match URI's to their numeric ID
+    public static UriMatcher buildUriMatcher() {
     // Construct an empty uriMatcher object
-    UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+        final String authority = CONTENT_AUTHORITY;
 
     // The URIs to match
     uriMatcher.addURI(CONTENT_AUTHORITY, PATH_WEATHER, CODE_WEATHER);
@@ -67,9 +69,8 @@ public static UriMatcher buildUriMatcher() {
     @Override
     public boolean onCreate() {
 
-        Context context = getContext();
 //      TODO (2) Within onCreate, instantiate our mOpenHelper
-        mOpenHelper = new WeatherDbHelper(context);
+        mOpenHelper = new WeatherDbHelper(getContext());
 
 //      TODO (3) Return true from onCreate to signify success performing setup
         return true;
@@ -114,16 +115,14 @@ public static UriMatcher buildUriMatcher() {
                         String[] selectionArgs, String sortOrder) {
 
 //      TODO (9) Handle queries on both the weather and weather with date URI
-        // Get access to db
-        final SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         // Write a Uri match code and set a variable to return a Cursor
-        int match = sUriMatcher.match(uri);
         Cursor cursor;
 
         // Query the db
-        switch (match) {
+        switch (sUriMatcher.match(uri)) {
             case CODE_WEATHER:
-                cursor = db.query(TABLE_NAME,
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -134,13 +133,14 @@ public static UriMatcher buildUriMatcher() {
 
             case CODE_WEATHER_WITH_DATE:
                 // Using selection and selectionArgs
-                // pathSegment 0 is the path 'TABLE_NAME', segment 1 is the date
-                String withDate = uri.getPathSegments().get(1);
+                // Get the las path segment
+                String withDate = uri.getLastPathSegment();
 
                 String mSelection = "_id=?";
                 String[] mSelectionArgs = new String[]{withDate};
 
-                cursor = db.query(TABLE_NAME,
+                cursor = mOpenHelper.getReadableDatabase().query(
+                        TABLE_NAME,
                         projection,
                         mSelection,
                         mSelectionArgs,

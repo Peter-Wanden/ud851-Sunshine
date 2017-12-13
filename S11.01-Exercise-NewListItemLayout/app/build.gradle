@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
 
     defaultConfig {
         applicationId "com.example.android.sunshine"
@@ -11,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
         release {
@@ -31,6 +31,7 @@ dependencies {
 //  TODO (1) Add the ConstraintLayout dependency to your project
 
     compile 'com.firebase:firebase-jobdispatcher:0.5.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
 
     // Instrumentation dependencies use androidTestCompile
     // (as opposed to testCompile for local unit tests run in the JVM)

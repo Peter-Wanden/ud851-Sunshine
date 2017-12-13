@@ -22,10 +22,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+
+import static com.example.android.sunshine.utilities.SunshineWeatherUtils.formatHighLows;
+import static com.example.android.sunshine.utilities.SunshineWeatherUtils.formatTemperature;
+import static com.example.android.sunshine.utilities.SunshineWeatherUtils.getSmallArtResourceIdForWeatherCondition;
+import static com.example.android.sunshine.utilities.SunshineWeatherUtils.getStringForWeatherCondition;
 
 /**
  * {@link ForecastAdapter} exposes a list of weather forecasts
@@ -35,6 +41,9 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
     /* The context we use to utility methods, app resources and layout inflaters */
     private final Context mContext;
+
+    // ListItem TextViews
+
 
     /*
      * Below, we've defined an interface to handle clicks on items within this Adapter. In the
@@ -109,27 +118,54 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
 
 //      TODO (7) Replace the single TextView with Views to display all of the weather info
 
-        /*******************
-         * Weather Summary *
-         *******************/
-         /* Read date from the cursor */
+        // Weather icon
+        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        int weatherImageId;
+
+        weatherImageId = getSmallArtResourceIdForWeatherCondition(weatherId);
+
+        forecastAdapterViewHolder.iconView.setImageResource(weatherImageId);
+
+
+        // Date
+        /* Read date from the cursor */
         long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
          /* Get human readable string using our utility method */
         String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
-         /* Use the weatherId to obtain the proper description */
-        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
-        String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
-         /* Read high temperature from the cursor (in degrees celsius) */
-        double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
-         /* Read low temperature from the cursor (in degrees celsius) */
-        double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+        // Display the date
+        forecastAdapterViewHolder.dateView.setText(dateString);
 
-        String highAndLowTemperature =
-                SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
+        // Description
+        String description = getStringForWeatherCondition(mContext, weatherId);
+         /* Create the accessibility (a11y) String from the weather description */
+        String descriptionA11y = mContext.getString(R.string.a11y_forecast, description);
 
-        String weatherSummary = dateString + " - " + description + " - " + highAndLowTemperature;
+        /* Set the text and content description (for accessibility purposes) */
+        forecastAdapterViewHolder.descriptionView.setText(description);
+        forecastAdapterViewHolder.descriptionView.setContentDescription(descriptionA11y);
 
-        forecastAdapterViewHolder.weatherSummary.setText(weatherSummary);
+        // High temp
+        double highCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
+        // Convert and format
+        String highString = formatTemperature(mContext, highCelsius);
+
+        /* Create the accessibility (a11y) String from the weather description */
+        String highA11y = mContext.getString(R.string.a11y_high_temp, highString);
+
+        /* Set the text and content description (for accessibility purposes) */
+        forecastAdapterViewHolder.highTempView.setText(highString);
+        forecastAdapterViewHolder.highTempView.setContentDescription(highA11y);
+
+        // Low temp
+        double lowCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+        // Convert and format
+        String lowString = formatTemperature(mContext, lowCelsius);
+
+        String lowA11y = mContext.getString(R.string.a11y_low_temp, lowString);
+
+         /* Set the text and content description (for accessibility purposes) */
+        forecastAdapterViewHolder.lowTempView.setText(lowString);
+        forecastAdapterViewHolder.lowTempView.setContentDescription(lowA11y);
     }
 
     /**
@@ -164,15 +200,23 @@ class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapt
      */
     class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 //      TODO (4) Replace the weatherSummary TextView with individual weather detail TextViews
-        final TextView weatherSummary;
+        final TextView dateView;
+        final TextView descriptionView;
+        final TextView highTempView;
+        final TextView lowTempView;
 
 //      TODO (5) Add an ImageView for the weather icon
+        final ImageView iconView;
 
         ForecastAdapterViewHolder(View view) {
             super(view);
 
 //          TODO (6) Get references to all new views and delete this line
-            weatherSummary = (TextView) view.findViewById(R.id.tv_weather_data);
+            dateView = (TextView) view.findViewById(R.id.date);
+            descriptionView = (TextView) view.findViewById(R.id.weather_description);
+            highTempView = (TextView) view.findViewById(R.id.high_temperature);
+            lowTempView = (TextView) view.findViewById(R.id.low_temperature);
+            iconView = (ImageView) view.findViewById(R.id.weather_icon);
 
             view.setOnClickListener(this);
         }
